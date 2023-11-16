@@ -1,0 +1,71 @@
+// Open an image file. This requires the user to select a file to open.
+open();
+
+// Get the directory of the currently open image and store it in 'path'.
+path = getDirectory("image");
+
+// Retrieve the name of the current file without its extension and store it in 'name'.
+name = File.nameWithoutExtension;
+
+// Rename the currently active image window to "image".
+rename("image");
+
+// Duplicate the current image and title the duplicate as 'image duplicate'.
+run("Duplicate...", "title=image duplicate");
+
+// Split the current image into its constituent color channels.
+run("Split Channels");
+
+// Select the first color channel, typically associated with the first dye.
+selectImage("C1-image");
+// Rename this channel to 'camk' for identification.
+rename("camk");
+
+// Select the second color channel.
+selectImage("C2-image");
+// Rename this channel to 'glun2b'.
+rename("glun2b");
+
+// Select the third color channel. There may be situations where this channel is very light or the CaMKII channel as a better signal as a fill. You can alter this code to reflect that if you'd like/if its appropriate. 
+selectImage("C3-image");
+// Rename this channel to 'fill'.
+rename("fill");
+
+// Image Processing on the 'fill' channel:
+selectWindow("fill");
+// Subtract background noise from the image with a rolling ball algorithm.
+run("Subtract Background...", "rolling=50 stack");
+// Apply a Gaussian blur to smooth the image.
+run("Gaussian Blur...", "sigma=4 stack");
+// Enhance the contrast of the image.
+run("Enhance Contrast...", "saturated=0.3 process_all use");
+
+// Threshold the image - Use the threshold bar to adjust the threshold such that the entire cell is being thresholded for analysis.
+run("Threshold...");
+waitForUser("threshold. press OK");
+
+// Convert the image stacks to individual images for further analysis.
+selectWindow("fill");
+run("Stack to Images");
+selectWindow("camk");
+run("Stack to Images");
+selectWindow("glun2b");
+run("Stack to Images");
+
+// Colocalization Analysis: Analyzing overlap between 'camk' and 'glun2b' channels in the series of images.
+// These commands perform colocalization analysis using the Coloc 2 plugin with specified settings.
+// Each line corresponds to a pair of images from the 'camk' and 'glun2b' channels.
+// The analysis is repeated for each image pair in the stack.
+run("Coloc 2", "channel_1=camk-0001 channel_2=glun2b-0001 roi_or_mask=fill-0001 threshold_regression=Costes 2d_intensity_histogram psf=3 costes_randomisations=1");
+run("Coloc 2", "channel_1=camk-0002 channel_2=glun2b-0002 roi_or_mask=fill-0002 threshold_regression=Costes 2d_intensity_histogram psf=3 costes_randomisations=1");
+run("Coloc 2", "channel_1=camk-0003 channel_2=glun2b-0003 roi_or_mask=fill-0003 threshold_regression=Costes 2d_intensity_histogram psf=3 costes_randomisations=1");
+run("Coloc 2", "channel_1=camk-0004 channel_2=glun2b-0004 roi_or_mask=fill-0004 threshold_regression=Costes 2d_intensity_histogram psf=3 costes_randomisations=1");
+run("Coloc 2", "channel_1=camk-0005 channel_2=glun2b-0005 roi_or_mask=fill-0005 threshold_regression=Costes 2d_intensity_histogram psf=3 costes_randomisations=1");
+run("Coloc 2", "channel_1=camk-0006 channel_2=glun2b-0006 roi_or_mask=fill-0006 threshold_regression=Costes 2d_intensity_histogram psf=3 costes_randomisations=1");
+run("Coloc 2", "channel_1=camk-0007 channel_2=glun2b-0007 roi_or_mask=fill-0007 threshold_regression=Costes 2d_intensity_histogram psf=3 costes_randomisations=1");
+// add more lines if you have a longer timelapse
+// Save the Log File that was created at this point
+waitForUser("Save Log File. press OK");
+
+// Close all open images and windows at the end of the macro.
+run("Close All");
