@@ -1,0 +1,491 @@
+open();
+	filedir = getDirectory("image");
+	filename=getTitle();
+	selectImage(filename); 
+	//close();
+	filein=filedir+filename; 
+	run("Set Scale...", "distance=0 known=0 pixel=1 unit=pixel");
+	//open(filein);
+	// orgstackID= getImageID; 
+	// getDimensions(width,height,channels,slices,frames);
+	// setLocation(50,50);
+	//rootname = File.nameWithoutExtension; 
+	fileNum = substring(filename,0,3);
+	//print (rootname);
+	//Zoom loaded image 
+	run("Set... ", "zoom=350 x=128 y=128"); setLocation(25,50); //can be adjusted to suit monitor
+	run("Enhance Contrast", "saturated=0.35"); setSlice(5);
+	//run("Fire"); // can be changed according to user preference
+
+
+//rename image for analysis
+rename("Image");
+run("Split Channels");
+
+//Rename Channels
+selectImage("C1-Image");
+run("Duplicate...", "title=[Puncta] duplicate");
+selectImage("C1-Image");
+run("Duplicate...", "title=CaMKII duplicate");
+selectImage("C1-Image");
+run("Duplicate...", "title=[Measure] duplicate");
+selectImage("C1-Image");
+rename("Area");
+selectImage("Area");
+//Seperate Cell Area into images
+run("Stack to Images");
+
+//===========================================================CaMKII Cell Area=============================================================================================================================
+//Issues with some Tif metadata requiring stupid channel renaming:
+selectImage("t01_z1_c1");
+rename("Area-0001");
+selectImage("t02_z1_c1");
+rename("Area-0002");
+selectImage("t03_z1_c1");
+rename("Area-0003");
+selectImage("t04_z1_c1");
+rename("Area-0004");
+selectImage("t05_z1_c1");
+rename("Area-0005");
+selectImage("t06_z1_c1");
+rename("Area-0006");
+selectImage("t07_z1_c1");
+rename("Area-0007");
+selectImage("t08_z1_c1");
+rename("Area-0008");
+selectImage("t09_z1_c1");
+rename("Area-0009");
+selectImage("t10_z1_c1");
+rename("Area-0010");
+selectImage("t11_z1_c1");
+rename("Area-0011");
+selectImage("t12_z1_c1");
+rename("Area-0012");
+
+//Create ROIs
+selectImage("Area-0001");
+setAutoThreshold("Otsu dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Area-0002");
+setAutoThreshold("Otsu dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Area-0003");
+setAutoThreshold("Otsu dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Area-0004");
+setAutoThreshold("Otsu dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Area-0005");
+setAutoThreshold("Otsu dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Area-0006");
+setAutoThreshold("Otsu dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Area-0007");
+setAutoThreshold("Otsu dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Area-0008");
+setAutoThreshold("Otsu dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Area-0009");
+setAutoThreshold("Otsu dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Area-0010");
+setAutoThreshold("Otsu dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Area-0011");
+setAutoThreshold("Otsu dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Area-0012");
+setAutoThreshold("Otsu dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+
+//Make the measurements and save ROIs
+	roiManager("Deselect");
+	roiManager("Save",""+filedir+" "+fileNum+"CaMKIICellArea_ROIset.zip");	
+	selectImage("Measure");
+
+// Define measurement settings (replace 'Area Mean Min Max' with the measurements you need)
+	run("Set Measurements...", "area mean redirect=None decimal=2");
+
+// Loop through the ROIs and measure them at corresponding timepoints
+for (i = 0; i < roiManager("count"); i++) {
+    roiManager("select", i);
+    timepoint = i + 1; // Assuming ROI index corresponds to timepoint
+    setSlice(timepoint); // Navigate to the correct timepoint
+    run("Measure");
+}
+
+	saveAs("Results",""+filedir+" "+fileNum+"CaMKIICellArea_results.xls");
+	selectWindow("Results"); run("Close"); roiManager("Reset");
+
+//====================================================================CaMKII Puncta Area=================================================================================================================
+//Create ROIs
+selectImage("Puncta");
+//Seperate Cell Puncta into images
+run("Stack to Images");
+//Issues with some Tif metadata requiring stupid channel renaming:
+selectImage("t01_z1_c1");
+rename("Puncta-0001");
+selectImage("t02_z1_c1");
+rename("Puncta-0002");
+selectImage("t03_z1_c1");
+rename("Puncta-0003");
+selectImage("t04_z1_c1");
+rename("Puncta-0004");
+selectImage("t05_z1_c1");
+rename("Puncta-0005");
+selectImage("t06_z1_c1");
+rename("Puncta-0006");
+selectImage("t07_z1_c1");
+rename("Puncta-0007");
+selectImage("t08_z1_c1");
+rename("Puncta-0008");
+selectImage("t09_z1_c1");
+rename("Puncta-0009");
+selectImage("t10_z1_c1");
+rename("Puncta-0010");
+selectImage("t11_z1_c1");
+rename("Puncta-0011");
+selectImage("t12_z1_c1");
+rename("Puncta-0012");
+
+//resume code like normal
+selectImage("Puncta-0001");
+setAutoThreshold("MaxEntropy dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Puncta-0002");
+setAutoThreshold("MaxEntropy dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Puncta-0003");
+setAutoThreshold("MaxEntropy dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Puncta-0004");
+setAutoThreshold("MaxEntropy dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Puncta-0005");
+setAutoThreshold("MaxEntropy dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Puncta-0006");
+setAutoThreshold("MaxEntropy dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Puncta-0007");
+setAutoThreshold("MaxEntropy dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Puncta-0008");
+setAutoThreshold("MaxEntropy dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Puncta-0009");
+setAutoThreshold("MaxEntropy dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Puncta-0010");
+setAutoThreshold("MaxEntropy dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Puncta-0011");
+setAutoThreshold("MaxEntropy dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Puncta-0012");
+setAutoThreshold("MaxEntropy dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+
+//Make the measurements and save ROIs
+	roiManager("Deselect");
+	roiManager("Save",""+filedir+" "+fileNum+"CaMKIIPunctaArea_ROIset.zip");	
+	selectImage("Measure");
+
+// Define measurement settings (replace 'Area Mean Min Max' with the measurements you need)
+	run("Set Measurements...", "area mean redirect=None decimal=2");
+
+// Loop through the ROIs and measure them at corresponding timepoints
+for (i = 0; i < roiManager("count"); i++) {
+    roiManager("select", i);
+    timepoint = i + 1; // Assuming ROI index corresponds to timepoint
+    setSlice(timepoint); // Navigate to the correct timepoint
+    run("Measure");
+}
+
+	saveAs("Results",""+filedir+" "+fileNum+"CaMKIIPunctaArea_results.xls");
+	selectWindow("Results"); run("Close"); roiManager("Reset");
+//==========================================================GluN2B Cell Area================================================================================================================================
+//Rename Channels
+selectImage("C2-Image");
+run("Duplicate...", "title=[Puncta2] duplicate");
+selectImage("C2-Image");
+run("Duplicate...", "title=GluN2B duplicate");
+selectImage("C2-Image");
+run("Duplicate...", "title=[Measure2] duplicate");
+selectImage("C2-Image");
+rename("Area2");
+selectImage("Area2");
+//Seperate Cell Area into images
+run("Stack to Images");
+
+//have to rename the channels because of the stupid metadata for some reason
+selectImage("t01_z1_c2");
+rename("Area2-0001");
+selectImage("t02_z1_c2");
+rename("Area2-0002");
+selectImage("t03_z1_c2");
+rename("Area2-0003");
+selectImage("t04_z1_c2");
+rename("Area2-0004");
+selectImage("t05_z1_c2");
+rename("Area2-0005");
+selectImage("t06_z1_c2");
+rename("Area2-0006");
+selectImage("t07_z1_c2");
+rename("Area2-0007");
+selectImage("t08_z1_c2");
+rename("Area2-0008");
+selectImage("t09_z1_c2");
+rename("Area2-0009");
+selectImage("t10_z1_c2");
+rename("Area2-0010");
+selectImage("t11_z1_c2");
+rename("Area2-0011");
+selectImage("t12_z1_c2");
+rename("Area2-0012");
+
+//Create ROIs
+selectImage("Area2-0001");
+setAutoThreshold("Otsu dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Area2-0002");
+setAutoThreshold("Otsu dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Area2-0003");
+setAutoThreshold("Otsu dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Area2-0004");
+setAutoThreshold("Otsu dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Area2-0005");
+setAutoThreshold("Otsu dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Area2-0006");
+setAutoThreshold("Otsu dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Area2-0007");
+setAutoThreshold("Otsu dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Area2-0008");
+setAutoThreshold("Otsu dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Area2-0009");
+setAutoThreshold("Otsu dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Area2-0010");
+setAutoThreshold("Otsu dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Area2-0011");
+setAutoThreshold("Otsu dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Area2-0012");
+setAutoThreshold("Otsu dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+
+//Make the measurements and save ROIs
+	roiManager("Deselect");
+	roiManager("Save",""+filedir+" "+fileNum+"GluN2BCellArea_ROIset.zip");	
+	selectImage("Measure2");
+
+// Define measurement settings (replace 'Area Mean Min Max' with the measurements you need)
+	run("Set Measurements...", "area mean redirect=None decimal=2");
+
+// Loop through the ROIs and measure them at corresponding timepoints
+for (i = 0; i < roiManager("count"); i++) {
+    roiManager("select", i);
+    timepoint = i + 1; // Assuming ROI index corresponds to timepoint
+    setSlice(timepoint); // Navigate to the correct timepoint
+    run("Measure");
+}
+
+	saveAs("Results",""+filedir+" "+fileNum+"GluN2BCellArea_results.xls");
+	selectWindow("Results"); run("Close"); roiManager("Reset");
+	
+//===============================================GluN2B Puncta Area===========================================================================================================================================
+//Create ROIs
+selectImage("Puncta2");
+//Seperate Cell Puncta into images
+run("Stack to Images");
+
+//stupid metadata issues that make me mad
+selectImage("t01_z1_c2");
+rename("Puncta2-0001");
+selectImage("t02_z1_c2");
+rename("Puncta2-0002");
+selectImage("t03_z1_c2");
+rename("Puncta2-0003");
+selectImage("t04_z1_c2");
+rename("Puncta2-0004");
+selectImage("t05_z1_c2");
+rename("Puncta2-0005");
+selectImage("t06_z1_c2");
+rename("Puncta2-0006");
+selectImage("t07_z1_c2");
+rename("Puncta2-0007");
+selectImage("t08_z1_c2");
+rename("Puncta2-0008");
+selectImage("t09_z1_c2");
+rename("Puncta2-0009");
+selectImage("t10_z1_c2");
+rename("Puncta2-0010");
+selectImage("t11_z1_c2");
+rename("Puncta2-0011");
+selectImage("t12_z1_c2");
+rename("Puncta2-0012");
+
+//resume code like normal
+selectImage("Puncta2-0001");
+setAutoThreshold("MaxEntropy dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Puncta2-0002");
+setAutoThreshold("MaxEntropy dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Puncta2-0003");
+setAutoThreshold("MaxEntropy dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Puncta2-0004");
+setAutoThreshold("MaxEntropy dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Puncta2-0005");
+setAutoThreshold("MaxEntropy dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Puncta2-0006");
+setAutoThreshold("MaxEntropy dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Puncta2-0007");
+setAutoThreshold("MaxEntropy dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Puncta2-0008");
+setAutoThreshold("MaxEntropy dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Puncta2-0009");
+setAutoThreshold("MaxEntropy dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Puncta2-0010");
+setAutoThreshold("MaxEntropy dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Puncta2-0011");
+setAutoThreshold("MaxEntropy dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+selectImage("Puncta2-0012");
+setAutoThreshold("MaxEntropy dark");
+run("Create Mask");
+run("Create Selection");
+roiManager("Add");
+
+//Make the measurements and save ROIs
+	roiManager("Deselect");
+	roiManager("Save",""+filedir+" "+fileNum+"GluN2BPunctaArea_ROIset.zip");	
+	selectImage("Measure2");
+
+// Define measurement settings (replace 'Area Mean Min Max' with the measurements you need)
+	run("Set Measurements...", "area mean redirect=None decimal=2");
+
+// Loop through the ROIs and measure them at corresponding timepoints
+for (i = 0; i < roiManager("count"); i++) {
+    roiManager("select", i);
+    timepoint = i + 1; // Assuming ROI index corresponds to timepoint
+    setSlice(timepoint); // Navigate to the correct timepoint
+    run("Measure");
+}
+
+	saveAs("Results",""+filedir+" "+fileNum+"GluN2BPunctaArea_results.xls");
+	selectWindow("Results"); run("Close"); roiManager("Reset");
+	
+	run("Close All");
