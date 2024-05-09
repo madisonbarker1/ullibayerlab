@@ -36,7 +36,7 @@ selectImage("Area");
 run("Stack to Images");
 
 //===========================================================CaMKII Cell Area=============================================================================================================================
-//Issues with some Tif metadata requiring stupid channel renaming:
+/*//Issues with some Tif metadata requiring stupid channel renaming:
 selectImage("t01_z1_c1");
 rename("Area-0001");
 selectImage("t02_z1_c1");
@@ -61,6 +61,7 @@ selectImage("t11_z1_c1");
 rename("Area-0011");
 selectImage("t12_z1_c1");
 rename("Area-0012");
+*/
 
 //Create ROIs
 selectImage("Area-0001");
@@ -124,6 +125,32 @@ run("Create Mask");
 run("Create Selection");
 roiManager("Add");
 
+//rename ROIs my guy
+roiManager("Select", 0);
+roiManager("Rename", "CCellArea1");
+roiManager("Select", 1);
+roiManager("Rename", "CCellArea2");
+roiManager("Select", 2);
+roiManager("Rename", "CCellArea3");
+roiManager("Select", 3);
+roiManager("Rename", "CCellArea4");
+roiManager("Select", 4);
+roiManager("Rename", "CCellArea5");
+roiManager("Select", 5);
+roiManager("Rename", "CCellArea6");
+roiManager("Select", 6);
+roiManager("Rename", "CCellArea7");
+roiManager("Select", 7);
+roiManager("Rename", "CCellArea8");
+roiManager("Select", 8);
+roiManager("Rename", "CCellArea9");
+roiManager("Select", 9);
+roiManager("Rename", "CCellArea10");
+roiManager("Select", 10);
+roiManager("Rename", "CCellArea11");
+roiManager("Select", 11);
+roiManager("Rename", "CCellArea12");
+
 //Make the measurements and save ROIs
 	roiManager("Deselect");
 	roiManager("Save",""+filedir+" "+fileNum+"CaMKIICellArea_ROIset.zip");	
@@ -149,6 +176,7 @@ selectImage("Puncta");
 //Seperate Cell Puncta into images
 run("Stack to Images");
 //Issues with some Tif metadata requiring stupid channel renaming:
+/*
 selectImage("t01_z1_c1");
 rename("Puncta-0001");
 selectImage("t02_z1_c1");
@@ -173,6 +201,7 @@ selectImage("t11_z1_c1");
 rename("Puncta-0011");
 selectImage("t12_z1_c1");
 rename("Puncta-0012");
+*/
 
 //resume code like normal
 selectImage("Puncta-0001");
@@ -236,6 +265,32 @@ run("Create Mask");
 run("Create Selection");
 roiManager("Add");
 
+//rename ROIs my guy
+roiManager("Select", 0);
+roiManager("Rename", "CPunctaArea1");
+roiManager("Select", 1);
+roiManager("Rename", "CPunctaArea2");
+roiManager("Select", 2);
+roiManager("Rename", "CPunctaArea3");
+roiManager("Select", 3);
+roiManager("Rename", "CPunctaArea4");
+roiManager("Select", 4);
+roiManager("Rename", "CPunctaArea5");
+roiManager("Select", 5);
+roiManager("Rename", "CPunctaArea6");
+roiManager("Select", 6);
+roiManager("Rename", "CPunctaArea7");
+roiManager("Select", 7);
+roiManager("Rename", "CPunctaArea8");
+roiManager("Select", 8);
+roiManager("Rename", "CPunctaArea9");
+roiManager("Select", 9);
+roiManager("Rename", "CPunctaArea10");
+roiManager("Select", 10);
+roiManager("Rename", "CPunctaArea11");
+roiManager("Select", 11);
+roiManager("Rename", "CPunctaArea12");
+
 //Make the measurements and save ROIs
 	roiManager("Deselect");
 	roiManager("Save",""+filedir+" "+fileNum+"CaMKIIPunctaArea_ROIset.zip");	
@@ -269,6 +324,7 @@ selectImage("Area2");
 run("Stack to Images");
 
 //have to rename the channels because of the stupid metadata for some reason
+/*
 selectImage("t01_z1_c2");
 rename("Area2-0001");
 selectImage("t02_z1_c2");
@@ -293,6 +349,7 @@ selectImage("t11_z1_c2");
 rename("Area2-0011");
 selectImage("t12_z1_c2");
 rename("Area2-0012");
+*/
 
 //Create ROIs
 selectImage("Area2-0001");
@@ -356,6 +413,32 @@ run("Create Mask");
 run("Create Selection");
 roiManager("Add");
 
+//rename ROIs my guy
+roiManager("Select", 0);
+roiManager("Rename", "GCellArea1");
+roiManager("Select", 1);
+roiManager("Rename", "GCellArea2");
+roiManager("Select", 2);
+roiManager("Rename", "GCellArea3");
+roiManager("Select", 3);
+roiManager("Rename", "GCellArea4");
+roiManager("Select", 4);
+roiManager("Rename", "GCellArea5");
+roiManager("Select", 5);
+roiManager("Rename", "GCellArea6");
+roiManager("Select", 6);
+roiManager("Rename", "GCellArea7");
+roiManager("Select", 7);
+roiManager("Rename", "GCellArea8");
+roiManager("Select", 8);
+roiManager("Rename", "GCellArea9");
+roiManager("Select", 9);
+roiManager("Rename", "GCellArea10");
+roiManager("Select", 10);
+roiManager("Rename", "GCellArea11");
+roiManager("Select", 11);
+roiManager("Rename", "GCellArea12");
+
 //Make the measurements and save ROIs
 	roiManager("Deselect");
 	roiManager("Save",""+filedir+" "+fileNum+"GluN2BCellArea_ROIset.zip");	
@@ -381,7 +464,7 @@ selectImage("Puncta2");
 //Seperate Cell Puncta into images
 run("Stack to Images");
 
-//stupid metadata issues that make me mad
+/*//stupid metadata issues that make me mad
 selectImage("t01_z1_c2");
 rename("Puncta2-0001");
 selectImage("t02_z1_c2");
@@ -406,10 +489,11 @@ selectImage("t11_z1_c2");
 rename("Puncta2-0011");
 selectImage("t12_z1_c2");
 rename("Puncta2-0012");
+*/
 
 //resume code like normal
 selectImage("Puncta2-0001");
-setAutoThreshold("MaxEntropy dark");
+setAutoThreshold("Otsu dark");
 run("Create Mask");
 run("Create Selection");
 roiManager("Add");
@@ -468,6 +552,32 @@ setAutoThreshold("MaxEntropy dark");
 run("Create Mask");
 run("Create Selection");
 roiManager("Add");
+
+//rename ROIs my guy
+roiManager("Select", 0);
+roiManager("Rename", "GPunctaArea1");
+roiManager("Select", 1);
+roiManager("Rename", "GPunctaArea2");
+roiManager("Select", 2);
+roiManager("Rename", "GPunctaArea3");
+roiManager("Select", 3);
+roiManager("Rename", "GPunctaArea4");
+roiManager("Select", 4);
+roiManager("Rename", "GPunctaArea5");
+roiManager("Select", 5);
+roiManager("Rename", "GPunctaArea6");
+roiManager("Select", 6);
+roiManager("Rename", "GPunctaArea7");
+roiManager("Select", 7);
+roiManager("Rename", "GPunctaArea8");
+roiManager("Select", 8);
+roiManager("Rename", "GPunctaArea9");
+roiManager("Select", 9);
+roiManager("Rename", "GPunctaArea10");
+roiManager("Select", 10);
+roiManager("Rename", "GPunctaArea11");
+roiManager("Select", 11);
+roiManager("Rename", "GPunctaArea12");
 
 //Make the measurements and save ROIs
 	roiManager("Deselect");
