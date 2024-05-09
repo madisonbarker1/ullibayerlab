@@ -1,0 +1,253 @@
+open();
+	filedir = getDirectory("image");
+	filename=getTitle();
+	selectImage(filename); 
+	//close();
+	filein=filedir+filename; 
+	run("Set Scale...", "distance=0 known=0 pixel=1 unit=pixel");
+run("Set Measurements...", "area mean redirect=None decimal=2");
+
+//Maually open the zip files I guess
+
+
+rename("Image");
+run("Split Channels");
+selectImage("C1-Image");
+run("Duplicate...", "title=Measure duplicate");
+selectImage("C2-Image");
+run("Duplicate...", "title=Measure2 duplicate");
+selectImage("C1-Image");
+run("Stack to Images");
+selectImage("C2-Image");
+run("Stack to Images");
+
+//start creating the overlapping masks
+selectImage("C1-Image-0001");
+roiManager("Select", 0);
+run("Create Mask");
+rename("MaskC01");
+selectImage("C2-Image-0001");
+roiManager("Select", 12);
+run("Create Mask");
+rename("MaskG01");
+
+selectImage("C1-Image-0002");
+roiManager("Select", 1);
+run("Create Mask");
+rename("MaskC02");
+selectImage("C2-Image-0002");
+roiManager("Select", 1);
+run("Create Mask");
+rename("MaskG02");
+
+selectImage("C1-Image-0003");
+roiManager("Select", 2);
+run("Create Mask");
+rename("MaskC03");
+selectImage("C2-Image-0003");
+roiManager("Select", 14);
+run("Create Mask");
+rename("MaskG03");
+
+selectImage("C1-Image-0004");
+roiManager("Select", 3);
+run("Create Mask");
+rename("MaskC04");
+selectImage("C2-Image-0004");
+roiManager("Select", 15);
+run("Create Mask");
+rename("MaskG04");
+
+selectImage("C1-Image-0005");
+roiManager("Select", 4);
+run("Create Mask");
+rename("MaskC05");
+selectImage("C2-Image-0005");
+roiManager("Select", 16);
+run("Create Mask");
+rename("MaskG05");
+
+selectImage("C1-Image-0006");
+roiManager("Select", 5);
+run("Create Mask");
+rename("MaskC06");
+selectImage("C2-Image-0006");
+roiManager("Select", 17);
+run("Create Mask");
+rename("MaskG06");
+
+selectImage("C1-Image-0007");
+roiManager("Select", 6);
+run("Create Mask");
+rename("MaskC07");
+selectImage("C2-Image-0007");
+roiManager("Select", 18);
+run("Create Mask");
+rename("MaskG07");
+
+selectImage("C1-Image-0008");
+roiManager("Select", 7);
+run("Create Mask");
+rename("MaskC08");
+selectImage("C2-Image-0008");
+roiManager("Select", 19);
+run("Create Mask");
+rename("MaskG08");
+
+selectImage("C1-Image-0009");
+roiManager("Select", 8);
+run("Create Mask");
+rename("MaskC09");
+selectImage("C2-Image-0009");
+roiManager("Select", 20);
+run("Create Mask");
+rename("MaskG09");
+
+selectImage("C1-Image-0010");
+roiManager("Select", 9);
+run("Create Mask");
+rename("MaskC10");
+selectImage("C2-Image-0010");
+roiManager("Select", 21);
+run("Create Mask");
+rename("MaskG10");
+
+selectImage("C1-Image-0011");
+roiManager("Select", 10);
+run("Create Mask");
+rename("MaskC11");
+selectImage("C2-Image-0011");
+roiManager("Select", 22);
+run("Create Mask");
+rename("MaskG11");
+
+selectImage("C1-Image-0012");
+roiManager("Select", 11);
+run("Create Mask");
+rename("MaskC12");
+selectImage("C2-Image-0012");
+roiManager("Select", 23);
+run("Create Mask");
+rename("MaskG12");
+
+
+//calculate the overlapping ROIs for CaMKII channel ========================================================================================================================================================
+//all odd results=CaMKII and all even = GluN2B
+imageCalculator("AND create", "MaskC01","MaskG01");
+selectImage("Result of MaskC01");
+run("Create Selection");
+roiManager("Add");
+roiManager("Select", 24);
+roiManager("Rename", "CandGPuncta01");
+
+imageCalculator("AND create", "MaskC02","MaskG02");
+selectImage("Result of MaskC02");
+run("Create Selection");
+roiManager("Add");
+roiManager("Select", 25);
+roiManager("Rename", "CandGPuncta02");
+
+imageCalculator("AND create", "MaskC03", "MaskG03");
+selectImage("Result of MaskC03");
+run("Create Selection");
+roiManager("Add");
+roiManager("Select", 26);
+roiManager("Rename", "CandGPuncta03");
+
+imageCalculator("AND create", "MaskC04", "MaskG04");
+selectImage("Result of MaskC04");
+run("Create Selection");
+roiManager("Add");
+roiManager("Select", 27);
+roiManager("Rename", "CandGPuncta04");
+
+imageCalculator("AND create", "MaskC05", "MaskG05");
+selectImage("Result of MaskC05");
+run("Create Selection");
+roiManager("Add");
+roiManager("Select", 28);
+roiManager("Rename", "CandGPuncta05");
+
+imageCalculator("AND create", "MaskC06", "MaskG06");
+selectImage("Result of MaskC06");
+run("Create Selection");
+roiManager("Add");
+roiManager("Select", 29);
+roiManager("Rename", "CandGPuncta06");
+
+imageCalculator("AND create", "MaskC07", "MaskG07");
+selectImage("Result of MaskC07");
+run("Create Selection");
+roiManager("Add");
+roiManager("Select", 30);
+roiManager("Rename", "CandGPuncta07");
+
+imageCalculator("AND create", "MaskC08", "MaskG08");
+selectImage("Result of MaskC08");
+run("Create Selection");
+roiManager("Add");
+roiManager("Select", 31);
+roiManager("Rename", "CandGPuncta08");
+
+imageCalculator("AND create", "MaskC09", "MaskG09");
+selectImage("Result of MaskC09");
+run("Create Selection");
+roiManager("Add");
+roiManager("Select", 32);
+roiManager("Rename", "CandGPuncta09");
+
+imageCalculator("AND create", "MaskC10", "MaskG10");
+selectImage("Result of MaskC10");
+run("Create Selection");
+roiManager("Add");
+roiManager("Select", 33);
+roiManager("Rename", "CandGPuncta10");
+
+imageCalculator("AND create", "MaskC11", "MaskG11");
+selectImage("Result of MaskC11");
+run("Create Selection");
+roiManager("Add");
+roiManager("Select", 34);
+roiManager("Rename", "CandGPuncta11");
+
+
+imageCalculator("AND create", "MaskC12", "MaskG12");
+selectImage("Result of MaskC12");
+run("Create Selection");
+roiManager("Add");
+roiManager("Select", 35);
+roiManager("Rename", "CandGPuncta12");
+
+for (var i = 23; i >= 0; i--) {
+    roiManager("Select", i);
+    roiManager("Delete");
+}
+
+roiManager("Deselect");
+	roiManager("Save",""+filedir+" "+fileNum+"CaMKIIandGluN2BPunctaOverlap_ROIset.zip");	
+	
+
+// Loop through the ROIs and measure CAMKII channel at corresponding timepoints
+selectImage("Measure");
+for (i = 0; i < roiManager("count"); i++) {
+    roiManager("select", i);
+    timepoint = i + 1; // Assuming ROI index corresponds to timepoint
+    setSlice(timepoint); // Navigate to the correct timepoint
+    run("Measure");
+}
+saveAs("Results",""+filedir+" "+fileNum+"CaMKIIoverlappingpuncta_results.xls");
+
+// Loop through the ROIs and measure GluN2B channel at corresponding timepoints
+selectImage("Measure2");
+for (i = 0; i < roiManager("count"); i++) {
+    roiManager("select", i);
+    timepoint = i + 1; // Assuming ROI index corresponds to timepoint
+    setSlice(timepoint); // Navigate to the correct timepoint
+    run("Measure");
+}
+saveAs("Results",""+filedir+" "+fileNum+"GluN2Boverlappingpuncta_results.xls");
+selectWindow("Results"); run("Close"); roiManager("Reset");
+	run("Close All");
+
+
+
