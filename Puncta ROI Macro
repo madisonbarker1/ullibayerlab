@@ -167,7 +167,7 @@ for (i = 0; i < roiManager("count"); i++) {
     run("Measure");
 }
 
-	saveAs("Results",""+filedir+" "+fileNum+"CaMKIICellArea_results.xls");
+	saveAs("Results",""+filedir+" "+fileNum+"CaMKIICellArea_results.csv");
 	selectWindow("Results"); run("Close"); roiManager("Reset");
 
 //====================================================================CaMKII Puncta Area=================================================================================================================
@@ -307,7 +307,7 @@ for (i = 0; i < roiManager("count"); i++) {
     run("Measure");
 }
 
-	saveAs("Results",""+filedir+" "+fileNum+"CaMKIIPunctaArea_results.xls");
+	saveAs("Results",""+filedir+" "+fileNum+"CaMKIIPunctaArea_results.csv");
 	selectWindow("Results"); run("Close"); roiManager("Reset");
 //==========================================================GluN2B Cell Area================================================================================================================================
 //Rename Channels
@@ -455,7 +455,7 @@ for (i = 0; i < roiManager("count"); i++) {
     run("Measure");
 }
 
-	saveAs("Results",""+filedir+" "+fileNum+"GluN2BCellArea_results.xls");
+	saveAs("Results",""+filedir+" "+fileNum+"GluN2BCellArea_results.csv");
 	selectWindow("Results"); run("Close"); roiManager("Reset");
 	
 //===============================================GluN2B Puncta Area===========================================================================================================================================
@@ -595,7 +595,7 @@ for (i = 0; i < roiManager("count"); i++) {
     run("Measure");
 }
 
-	saveAs("Results",""+filedir+" "+fileNum+"GluN2BPunctaArea_results.xls");
+	saveAs("Results",""+filedir+" "+fileNum+"GluN2BPunctaArea_results.csv");
 	selectWindow("Results"); run("Close"); roiManager("Reset");
 	
 	run("Close All");
