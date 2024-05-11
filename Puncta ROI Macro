@@ -1,3 +1,4 @@
+// Initialization and Splitting Channels
 open();
 	filedir = getDirectory("image");
 	filename=getTitle();
@@ -18,632 +19,222 @@ open();
 	//run("Fire"); // can be changed according to user preference
 
 
-//rename image for analysis
 rename("Image");
 run("Split Channels");
 
-//Rename Channels
-selectImage("C1-Image");
-run("Duplicate...", "title=[Puncta] duplicate");
-selectImage("C1-Image");
-run("Duplicate...", "title=CaMKII duplicate");
 selectImage("C1-Image");
 run("Duplicate...", "title=[Measure] duplicate");
 selectImage("C1-Image");
-rename("Area");
+run("Duplicate...", "title=[Puncta] duplicate");
+selectImage("C1-Image");
+run("Duplicate...", "title=[Area] duplicate");
 selectImage("Area");
-//Seperate Cell Area into images
 run("Stack to Images");
 
-//===========================================================CaMKII Cell Area=============================================================================================================================
-/*//Issues with some Tif metadata requiring stupid channel renaming:
-selectImage("t01_z1_c1");
-rename("Area-0001");
-selectImage("t02_z1_c1");
-rename("Area-0002");
-selectImage("t03_z1_c1");
-rename("Area-0003");
-selectImage("t04_z1_c1");
-rename("Area-0004");
-selectImage("t05_z1_c1");
-rename("Area-0005");
-selectImage("t06_z1_c1");
-rename("Area-0006");
-selectImage("t07_z1_c1");
-rename("Area-0007");
-selectImage("t08_z1_c1");
-rename("Area-0008");
-selectImage("t09_z1_c1");
-rename("Area-0009");
-selectImage("t10_z1_c1");
-rename("Area-0010");
-selectImage("t11_z1_c1");
-rename("Area-0011");
-selectImage("t12_z1_c1");
-rename("Area-0012");
-*/
+// Loop through the images and create ROIs
+for (i = 1; i <= 12; i++) {
+    imageName = "Area-";
+    if (i < 10) {
+        imageName += "000" + i;
+    } else {
+        imageName += "00" + i;
+    }
 
-//Create ROIs
-selectImage("Area-0001");
-setAutoThreshold("Otsu dark");
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Area-0002");
-setAutoThreshold("Otsu dark");
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Area-0003");
-setAutoThreshold("Otsu dark");
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Area-0004");
-setAutoThreshold("Otsu dark");
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Area-0005");
-setAutoThreshold("Otsu dark");
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Area-0006");
-setAutoThreshold("Otsu dark");
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Area-0007");
-setAutoThreshold("Otsu dark");
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Area-0008");
-setAutoThreshold("Otsu dark");
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Area-0009");
-setAutoThreshold("Otsu dark");
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Area-0010");
-setAutoThreshold("Otsu dark");
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Area-0011");
-setAutoThreshold("Otsu dark");
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Area-0012");
-setAutoThreshold("Otsu dark");
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
+    selectImage(imageName);
+    setAutoThreshold("Otsu dark");
+    run("Convert to Mask");
 
-//rename ROIs my guy
-roiManager("Select", 0);
-roiManager("Rename", "CCellArea1");
-roiManager("Select", 1);
-roiManager("Rename", "CCellArea2");
-roiManager("Select", 2);
-roiManager("Rename", "CCellArea3");
-roiManager("Select", 3);
-roiManager("Rename", "CCellArea4");
-roiManager("Select", 4);
-roiManager("Rename", "CCellArea5");
-roiManager("Select", 5);
-roiManager("Rename", "CCellArea6");
-roiManager("Select", 6);
-roiManager("Rename", "CCellArea7");
-roiManager("Select", 7);
-roiManager("Rename", "CCellArea8");
-roiManager("Select", 8);
-roiManager("Rename", "CCellArea9");
-roiManager("Select", 9);
-roiManager("Rename", "CCellArea10");
-roiManager("Select", 10);
-roiManager("Rename", "CCellArea11");
-roiManager("Select", 11);
-roiManager("Rename", "CCellArea12");
-
-//Make the measurements and save ROIs
-	roiManager("Deselect");
-	roiManager("Save",""+filedir+" "+fileNum+"CaMKIICellArea_ROIset.zip");	
-	selectImage("Measure");
-
-// Define measurement settings (replace 'Area Mean Min Max' with the measurements you need)
-	run("Set Measurements...", "area mean redirect=None decimal=2");
-
-// Loop through the ROIs and measure them at corresponding timepoints
-for (i = 0; i < roiManager("count"); i++) {
-    roiManager("select", i);
-    timepoint = i + 1; // Assuming ROI index corresponds to timepoint
-    setSlice(timepoint); // Navigate to the correct timepoint
-    run("Measure");
+    run("Create Selection");
+    if (selectionType() >= 0) {
+        roiManager("Add");
+        roiManager("Select", roiManager("count")-1); // Selects the last added ROI
+        roiManager("Rename", "CCellArea" + i); // Normal ROI
+    } else {
+        print("No valid selection for " + imageName + ", adding dummy ROI.");
+        makeRectangle(0, 0, 1, 1); // Create a tiny ROI at the corner of the image
+        roiManager("Add");
+        roiManager("Select", roiManager("count")-1); // Selects the last added ROI
+        roiManager("Rename", "DummyCCellArea" + i); // Naming the dummy ROI distinctly
+    }
 }
 
-	saveAs("Results",""+filedir+" "+fileNum+"CaMKIICellArea_results.csv");
-	selectWindow("Results"); run("Close"); roiManager("Reset");
+// Save ROIs
+roiManager("Deselect");
+roiManager("Save", filedir + fileNum + "CaMKIICellArea_ROIset.zip");
+selectImage("Measure");
+run("Set Measurements...", "area mean redirect=None decimal=2");
 
-//====================================================================CaMKII Puncta Area=================================================================================================================
-//Create ROIs
+// Measure ROIs
+if (roiManager("count") > 0) {
+    for (i = 0; i < roiManager("count"); i++) {
+        roiManager("select", i);
+        setSlice(i + 1);
+        run("Measure");
+    }
+}
+
+saveAs("Results", filedir + fileNum + "CaMKIICellArea_results.csv");
+selectWindow("Results"); run("Close");
+roiManager("Reset");
+
+//==============================CaMKII Puncta Area===========================================================================================
 selectImage("Puncta");
-//Seperate Cell Puncta into images
 run("Stack to Images");
-//Issues with some Tif metadata requiring stupid channel renaming:
-/*
-selectImage("t01_z1_c1");
-rename("Puncta-0001");
-selectImage("t02_z1_c1");
-rename("Puncta-0002");
-selectImage("t03_z1_c1");
-rename("Puncta-0003");
-selectImage("t04_z1_c1");
-rename("Puncta-0004");
-selectImage("t05_z1_c1");
-rename("Puncta-0005");
-selectImage("t06_z1_c1");
-rename("Puncta-0006");
-selectImage("t07_z1_c1");
-rename("Puncta-0007");
-selectImage("t08_z1_c1");
-rename("Puncta-0008");
-selectImage("t09_z1_c1");
-rename("Puncta-0009");
-selectImage("t10_z1_c1");
-rename("Puncta-0010");
-selectImage("t11_z1_c1");
-rename("Puncta-0011");
-selectImage("t12_z1_c1");
-rename("Puncta-0012");
-*/
 
-//resume code like normal
-selectImage("Puncta-0001");
-getStatistics(area, mean, min, max, stdDev, histogram);
-thresholdValue = mean + (2 * stdDev);
-setThreshold(thresholdValue, max);
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Puncta-0002");
-getStatistics(area, mean, min, max, stdDev, histogram);
-thresholdValue = mean + (2 * stdDev);
-setThreshold(thresholdValue, max);
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Puncta-0003");
-getStatistics(area, mean, min, max, stdDev, histogram);
-thresholdValue = mean + (2 * stdDev);
-setThreshold(thresholdValue, max);
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Puncta-0004");
-getStatistics(area, mean, min, max, stdDev, histogram);
-thresholdValue = mean + (2 * stdDev);
-setThreshold(thresholdValue, max);
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Puncta-0005");
-getStatistics(area, mean, min, max, stdDev, histogram);
-thresholdValue = mean + (2 * stdDev);
-setThreshold(thresholdValue, max);
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Puncta-0006");
-getStatistics(area, mean, min, max, stdDev, histogram);
-thresholdValue = mean + (2 * stdDev);
-setThreshold(thresholdValue, max);
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Puncta-0007");
-getStatistics(area, mean, min, max, stdDev, histogram);
-thresholdValue = mean + (2 * stdDev);
-setThreshold(thresholdValue, max);
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Puncta-0008");
-getStatistics(area, mean, min, max, stdDev, histogram);
-thresholdValue = mean + (2 * stdDev);
-setThreshold(thresholdValue, max);
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Puncta-0009");
-getStatistics(area, mean, min, max, stdDev, histogram);
-thresholdValue = mean + (2 * stdDev);
-setThreshold(thresholdValue, max);
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Puncta-0010");
-getStatistics(area, mean, min, max, stdDev, histogram);
-thresholdValue = mean + (2 * stdDev);
-setThreshold(thresholdValue, max);
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Puncta-0011");
-getStatistics(area, mean, min, max, stdDev, histogram);
-thresholdValue = mean + (2 * stdDev);
-setThreshold(thresholdValue, max);
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Puncta-0012");
-getStatistics(area, mean, min, max, stdDev, histogram);
-thresholdValue = mean + (2 * stdDev);
-setThreshold(thresholdValue, max);
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
+// Loop through the images and create ROIs
+for (i = 1; i <= 12; i++) {
+    imageName = "Puncta-";
+    if (i < 10) {
+        imageName += "000" + i;
+    } else {
+        imageName += "00" + i;
+    }
 
-//rename ROIs my guy
-roiManager("Select", 0);
-roiManager("Rename", "CPunctaArea1");
-roiManager("Select", 1);
-roiManager("Rename", "CPunctaArea2");
-roiManager("Select", 2);
-roiManager("Rename", "CPunctaArea3");
-roiManager("Select", 3);
-roiManager("Rename", "CPunctaArea4");
-roiManager("Select", 4);
-roiManager("Rename", "CPunctaArea5");
-roiManager("Select", 5);
-roiManager("Rename", "CPunctaArea6");
-roiManager("Select", 6);
-roiManager("Rename", "CPunctaArea7");
-roiManager("Select", 7);
-roiManager("Rename", "CPunctaArea8");
-roiManager("Select", 8);
-roiManager("Rename", "CPunctaArea9");
-roiManager("Select", 9);
-roiManager("Rename", "CPunctaArea10");
-roiManager("Select", 10);
-roiManager("Rename", "CPunctaArea11");
-roiManager("Select", 11);
-roiManager("Rename", "CPunctaArea12");
+    selectImage(imageName);
+    getStatistics(area, mean, min, max, stdDev, histogram);
+    thresholdValue = mean + (2.75 * stdDev);
+    setThreshold(thresholdValue, max);
+    run("Convert to Mask");
 
-//Make the measurements and save ROIs
-	roiManager("Deselect");
-	roiManager("Save",""+filedir+" "+fileNum+"CaMKIIPunctaArea_ROIset.zip");	
-	selectImage("Measure");
-
-// Define measurement settings (replace 'Area Mean Min Max' with the measurements you need)
-	run("Set Measurements...", "area mean redirect=None decimal=2");
-
-// Loop through the ROIs and measure them at corresponding timepoints
-for (i = 0; i < roiManager("count"); i++) {
-    roiManager("select", i);
-    timepoint = i + 1; // Assuming ROI index corresponds to timepoint
-    setSlice(timepoint); // Navigate to the correct timepoint
-    run("Measure");
+    run("Create Selection");
+    if (selectionType() >= 0) {
+        roiManager("Add");
+        roiManager("Select", roiManager("count")-1); // Selects the last added ROI
+        roiManager("Rename", "CPunctaArea" + i); // Normal ROI
+    } else {
+        print("No valid selection for " + imageName + ", adding dummy ROI.");
+        makeRectangle(0, 0, 1, 1); // Create a tiny ROI at the corner of the image
+        roiManager("Add");
+        roiManager("Select", roiManager("count")-1); // Selects the last added ROI
+        roiManager("Rename", "DummyCPunctaArea" + i); // Naming the dummy ROI distinctly
+    }
 }
 
-	saveAs("Results",""+filedir+" "+fileNum+"CaMKIIPunctaArea_results.csv");
-	selectWindow("Results"); run("Close"); roiManager("Reset");
-//==========================================================GluN2B Cell Area================================================================================================================================
-//Rename Channels
-selectImage("C2-Image");
-run("Duplicate...", "title=[Puncta2] duplicate");
-selectImage("C2-Image");
-run("Duplicate...", "title=GluN2B duplicate");
+// Save ROIs
+roiManager("Deselect");
+roiManager("Save", filedir + fileNum + "CaMKIIPunctaArea_ROIset.zip");
+selectImage("Measure");
+run("Set Measurements...", "area mean redirect=None decimal=2");
+
+// Measure ROIs
+if (roiManager("count") > 0) {
+    for (i = 0; i < roiManager("count"); i++) {
+        roiManager("select", i);
+        setSlice(i + 1);
+        run("Measure");
+    }
+}
+
+saveAs("Results", filedir + fileNum + "CaMKIIPunctaArea_results.csv");
+selectWindow("Results"); run("Close");
+roiManager("Reset");
+
+//====================================Get GluN2B Channel=====================================================================================
 selectImage("C2-Image");
 run("Duplicate...", "title=[Measure2] duplicate");
 selectImage("C2-Image");
-rename("Area2");
+run("Duplicate...", "title=[Puncta2] duplicate");
+selectImage("C2-Image");
+run("Duplicate...", "title=[Area2] duplicate");
 selectImage("Area2");
-//Seperate Cell Area into images
 run("Stack to Images");
 
-//have to rename the channels because of the stupid metadata for some reason
-/*
-selectImage("t01_z1_c2");
-rename("Area2-0001");
-selectImage("t02_z1_c2");
-rename("Area2-0002");
-selectImage("t03_z1_c2");
-rename("Area2-0003");
-selectImage("t04_z1_c2");
-rename("Area2-0004");
-selectImage("t05_z1_c2");
-rename("Area2-0005");
-selectImage("t06_z1_c2");
-rename("Area2-0006");
-selectImage("t07_z1_c2");
-rename("Area2-0007");
-selectImage("t08_z1_c2");
-rename("Area2-0008");
-selectImage("t09_z1_c2");
-rename("Area2-0009");
-selectImage("t10_z1_c2");
-rename("Area2-0010");
-selectImage("t11_z1_c2");
-rename("Area2-0011");
-selectImage("t12_z1_c2");
-rename("Area2-0012");
-*/
+// Loop through the images and create ROIs
+for (i = 1; i <= 12; i++) {
+    imageName = "Area2-";
+    if (i < 10) {
+        imageName += "000" + i;
+    } else {
+        imageName += "00" + i;
+    }
 
-//Create ROIs
-selectImage("Area2-0001");
-setAutoThreshold("Otsu dark");
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Area2-0002");
-setAutoThreshold("Otsu dark");
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Area2-0003");
-setAutoThreshold("Otsu dark");
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Area2-0004");
-setAutoThreshold("Otsu dark");
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Area2-0005");
-setAutoThreshold("Otsu dark");
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Area2-0006");
-setAutoThreshold("Otsu dark");
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Area2-0007");
-setAutoThreshold("Otsu dark");
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Area2-0008");
-setAutoThreshold("Otsu dark");
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Area2-0009");
-setAutoThreshold("Otsu dark");
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Area2-0010");
-setAutoThreshold("Otsu dark");
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Area2-0011");
-setAutoThreshold("Otsu dark");
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Area2-0012");
-setAutoThreshold("Otsu dark");
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
+    selectImage(imageName);
+    setAutoThreshold("Otsu dark");
+    run("Convert to Mask");
 
-//rename ROIs my guy
-roiManager("Select", 0);
-roiManager("Rename", "GCellArea1");
-roiManager("Select", 1);
-roiManager("Rename", "GCellArea2");
-roiManager("Select", 2);
-roiManager("Rename", "GCellArea3");
-roiManager("Select", 3);
-roiManager("Rename", "GCellArea4");
-roiManager("Select", 4);
-roiManager("Rename", "GCellArea5");
-roiManager("Select", 5);
-roiManager("Rename", "GCellArea6");
-roiManager("Select", 6);
-roiManager("Rename", "GCellArea7");
-roiManager("Select", 7);
-roiManager("Rename", "GCellArea8");
-roiManager("Select", 8);
-roiManager("Rename", "GCellArea9");
-roiManager("Select", 9);
-roiManager("Rename", "GCellArea10");
-roiManager("Select", 10);
-roiManager("Rename", "GCellArea11");
-roiManager("Select", 11);
-roiManager("Rename", "GCellArea12");
-
-//Make the measurements and save ROIs
-	roiManager("Deselect");
-	roiManager("Save",""+filedir+" "+fileNum+"GluN2BCellArea_ROIset.zip");	
-	selectImage("Measure2");
-
-// Define measurement settings (replace 'Area Mean Min Max' with the measurements you need)
-	run("Set Measurements...", "area mean redirect=None decimal=2");
-
-// Loop through the ROIs and measure them at corresponding timepoints
-for (i = 0; i < roiManager("count"); i++) {
-    roiManager("select", i);
-    timepoint = i + 1; // Assuming ROI index corresponds to timepoint
-    setSlice(timepoint); // Navigate to the correct timepoint
-    run("Measure");
+    run("Create Selection");
+    if (selectionType() >= 0) {
+        roiManager("Add");
+        roiManager("Select", roiManager("count")-1); // Selects the last added ROI
+        roiManager("Rename", "GCellArea" + i); // Normal ROI
+    } else {
+        print("No valid selection for " + imageName + ", adding dummy ROI.");
+        makeRectangle(0, 0, 1, 1); // Create a tiny ROI at the corner of the image
+        roiManager("Add");
+        roiManager("Select", roiManager("count")-1); // Selects the last added ROI
+        roiManager("Rename", "DummyGCellArea" + i); // Naming the dummy ROI distinctly
+    }
 }
 
-	saveAs("Results",""+filedir+" "+fileNum+"GluN2BCellArea_results.csv");
-	selectWindow("Results"); run("Close"); roiManager("Reset");
-	
-//===============================================GluN2B Puncta Area===========================================================================================================================================
-//Create ROIs
+// Save ROIs
+roiManager("Deselect");
+roiManager("Save", filedir + fileNum + "GluN2BCellArea_ROIset.zip");
+selectImage("Measure");
+run("Set Measurements...", "area mean redirect=None decimal=2");
+
+// Measure ROIs
+if (roiManager("count") > 0) {
+    for (i = 0; i < roiManager("count"); i++) {
+        roiManager("select", i);
+        setSlice(i + 1);
+        run("Measure");
+    }
+}
+
+saveAs("Results", filedir + fileNum + "GluN2BCellArea_results.csv");
+selectWindow("Results"); run("Close");
+roiManager("Reset");
+
+//==============================GluN2B Puncta Area===========================================================================================
 selectImage("Puncta2");
-//Seperate Cell Puncta into images
 run("Stack to Images");
 
-/*//stupid metadata issues that make me mad
-selectImage("t01_z1_c2");
-rename("Puncta2-0001");
-selectImage("t02_z1_c2");
-rename("Puncta2-0002");
-selectImage("t03_z1_c2");
-rename("Puncta2-0003");
-selectImage("t04_z1_c2");
-rename("Puncta2-0004");
-selectImage("t05_z1_c2");
-rename("Puncta2-0005");
-selectImage("t06_z1_c2");
-rename("Puncta2-0006");
-selectImage("t07_z1_c2");
-rename("Puncta2-0007");
-selectImage("t08_z1_c2");
-rename("Puncta2-0008");
-selectImage("t09_z1_c2");
-rename("Puncta2-0009");
-selectImage("t10_z1_c2");
-rename("Puncta2-0010");
-selectImage("t11_z1_c2");
-rename("Puncta2-0011");
-selectImage("t12_z1_c2");
-rename("Puncta2-0012");
-*/
+// Loop through the images and create ROIs
+for (i = 1; i <= 12; i++) {
+    imageName = "Puncta2-";
+    if (i < 10) {
+        imageName += "000" + i;
+    } else {
+        imageName += "00" + i;
+    }
 
-//resume code like normal
-selectImage("Puncta2-0001");
-getStatistics(area, mean, min, max, stdDev, histogram);
-thresholdValue = mean + (2 * stdDev);
-setThreshold(thresholdValue, max);
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Puncta2-0002");
-getStatistics(area, mean, min, max, stdDev, histogram);
-thresholdValue = mean + (2 * stdDev);
-setThreshold(thresholdValue, max);
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Puncta2-0003");
-getStatistics(area, mean, min, max, stdDev, histogram);
-thresholdValue = mean + (2 * stdDev);
-setThreshold(thresholdValue, max);
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Puncta2-0004");
-getStatistics(area, mean, min, max, stdDev, histogram);
-thresholdValue = mean + (2 * stdDev);
-setThreshold(thresholdValue, max);
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Puncta2-0005");
-getStatistics(area, mean, min, max, stdDev, histogram);
-thresholdValue = mean + (2 * stdDev);
-setThreshold(thresholdValue, max);
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Puncta2-0006");
-getStatistics(area, mean, min, max, stdDev, histogram);
-thresholdValue = mean + (2 * stdDev);
-setThreshold(thresholdValue, max);
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Puncta2-0007");
-getStatistics(area, mean, min, max, stdDev, histogram);
-thresholdValue = mean + (2 * stdDev);
-setThreshold(thresholdValue, max);
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Puncta2-0008");
-getStatistics(area, mean, min, max, stdDev, histogram);
-thresholdValue = mean + (2 * stdDev);
-setThreshold(thresholdValue, max);
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Puncta2-0009");
-getStatistics(area, mean, min, max, stdDev, histogram);
-thresholdValue = mean + (2 * stdDev);
-setThreshold(thresholdValue, max);
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Puncta2-0010");
-getStatistics(area, mean, min, max, stdDev, histogram);
-thresholdValue = mean + (2 * stdDev);
-setThreshold(thresholdValue, max);
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Puncta2-0011");
-getStatistics(area, mean, min, max, stdDev, histogram);
-thresholdValue = mean + (2 * stdDev);
-setThreshold(thresholdValue, max);
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
-selectImage("Puncta2-0012");
-getStatistics(area, mean, min, max, stdDev, histogram);
-thresholdValue = mean + (2 * stdDev);
-setThreshold(thresholdValue, max);
-run("Create Mask");
-run("Create Selection");
-roiManager("Add");
+    selectImage(imageName);
+    getStatistics(area, mean, min, max, stdDev, histogram);
+    thresholdValue = mean + (2.75 * stdDev);
+    setThreshold(thresholdValue, max);
+    run("Convert to Mask");
 
-//rename ROIs my guy
-roiManager("Select", 0);
-roiManager("Rename", "GPunctaArea1");
-roiManager("Select", 1);
-roiManager("Rename", "GPunctaArea2");
-roiManager("Select", 2);
-roiManager("Rename", "GPunctaArea3");
-roiManager("Select", 3);
-roiManager("Rename", "GPunctaArea4");
-roiManager("Select", 4);
-roiManager("Rename", "GPunctaArea5");
-roiManager("Select", 5);
-roiManager("Rename", "GPunctaArea6");
-roiManager("Select", 6);
-roiManager("Rename", "GPunctaArea7");
-roiManager("Select", 7);
-roiManager("Rename", "GPunctaArea8");
-roiManager("Select", 8);
-roiManager("Rename", "GPunctaArea9");
-roiManager("Select", 9);
-roiManager("Rename", "GPunctaArea10");
-roiManager("Select", 10);
-roiManager("Rename", "GPunctaArea11");
-roiManager("Select", 11);
-roiManager("Rename", "GPunctaArea12");
-
-//Make the measurements and save ROIs
-	roiManager("Deselect");
-	roiManager("Save",""+filedir+" "+fileNum+"GluN2BPunctaArea_ROIset.zip");	
-	selectImage("Measure2");
-
-// Define measurement settings (replace 'Area Mean Min Max' with the measurements you need)
-	run("Set Measurements...", "area mean redirect=None decimal=2");
-
-// Loop through the ROIs and measure them at corresponding timepoints
-for (i = 0; i < roiManager("count"); i++) {
-    roiManager("select", i);
-    timepoint = i + 1; // Assuming ROI index corresponds to timepoint
-    setSlice(timepoint); // Navigate to the correct timepoint
-    run("Measure");
+    run("Create Selection");
+    if (selectionType() >= 0) {
+        roiManager("Add");
+        roiManager("Select", roiManager("count")-1); // Selects the last added ROI
+        roiManager("Rename", "GPunctaArea" + i); // Normal ROI
+    } else {
+        print("No valid selection for " + imageName + ", adding dummy ROI.");
+        makeRectangle(0, 0, 1, 1); // Create a tiny ROI at the corner of the image
+        roiManager("Add");
+        roiManager("Select", roiManager("count")-1); // Selects the last added ROI
+        roiManager("Rename", "DummyGPunctaArea" + i); // Naming the dummy ROI distinctly
+    }
 }
 
-	saveAs("Results",""+filedir+" "+fileNum+"GluN2BPunctaArea_results.csv");
-	selectWindow("Results"); run("Close"); roiManager("Reset");
-	
-	run("Close All");
+// Save ROIs
+roiManager("Deselect");
+roiManager("Save", filedir + fileNum + "GluN2BPunctaArea_ROIset.zip");
+selectImage("Measure2");
+run("Set Measurements...", "area mean redirect=None decimal=2");
+
+// Measure ROIs
+if (roiManager("count") > 0) {
+    for (i = 0; i < roiManager("count"); i++) {
+        roiManager("select", i);
+        setSlice(i + 1);
+        run("Measure");
+    }
+}
+
+saveAs("Results", filedir + fileNum + "GluN2BPunctaArea_results.csv");
+selectWindow("Results"); run("Close");
+roiManager("Reset");
+
+run("Close All");
