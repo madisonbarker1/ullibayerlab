@@ -106,6 +106,16 @@ for (i = 1; i <= listlength; i++) {
     }
 
     selectImage(imageName);
+/*//right here is where you can change the thresholding to whatever you want it was the following before this new iteration of code
+run("Subtract Background...", "rolling=50 stack");
+// Apply a Gaussian blur to smooth the image.
+run("Gaussian Blur...", "sigma=4 stack");
+// Enhance the contrast of the image.
+run("Enhance Contrast...", "saturated=0.3 process_all use");
+*/
+
+// Threshold the image - Use the threshold bar to adjust the threshold such that the entire cell is being thresholded for analysis.
+run("Threshold...");
      getStatistics(area, mean, min, max, stdDev, histogram);
     thresholdValue = mean;
     setThreshold(thresholdValue, max);
