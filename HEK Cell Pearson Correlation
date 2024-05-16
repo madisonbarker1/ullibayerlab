@@ -23,6 +23,7 @@ run("Split Channels");
 
 selectImage("C1-Image");
 run("Duplicate...", "title=[camkii] duplicate");
+//this can be changed to the third channel if your cell fill expressed well
 selectImage("C1-Image");
 run("Duplicate...", "title=[fill] duplicate");
 selectImage("C2-Image");
