@@ -34,23 +34,20 @@ run("Stack to Images");
 selectImage("glun2b");
 run("Stack to Images");
 
+// Output the number of slices
 selectImage("C1-Image");
 n = nSlices();
 
-// Output the number of slices
+
 selectImage("C3-Image");
 close();
 
 
-// Get the total number of slices
-// Get the total number of slices
 
-// Loop through each slice
 for (i = 1; i <= n; i++) {
     // Initialize the original name variable
     originalName = "camkii-";
     
-    // Add leading zeros manually based on the value of i
     if (i < 10) {
         originalName += "000" + i;
     } else if (i < 100) {
@@ -109,8 +106,9 @@ for (i = 1; i <= listlength; i++) {
     }
 
     selectImage(imageName);
-    setAutoThreshold("Otsu dark");
-    run("Convert to Mask");
+     getStatistics(area, mean, min, max, stdDev, histogram);
+    thresholdValue = mean;
+    setThreshold(thresholdValue, max);
 
     run("Create Selection");
     if (selectionType() >= 0) {
@@ -154,4 +152,3 @@ if (isOpen("Log")) {
 roiManager("Deselect");
 roiManager("Delete");
 run("Close All");
-
