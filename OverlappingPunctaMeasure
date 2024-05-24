@@ -84,6 +84,7 @@ for (i = 0; i < roiManager("count"); i++) {
     run("Measure");
 }
 saveAs("Results", filedir + fileNum + "CaMKIIoverlappingpuncta_results.csv");
+selectWindow("Results"); run("Close");
 
 // Loop through the ROIs and measure GluN2B channel at corresponding timepoints
 selectImage("Measure2");
