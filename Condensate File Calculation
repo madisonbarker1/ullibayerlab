@@ -1,0 +1,74 @@
+#R Code for Condensate File Manipulation
+library(readr)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+
+main_dir <- "C:/Users/Chase/OneDrive/Documents/Bayer Lab Raw Data/HEK_CONDENSATES/GFP/HEK Condensates 24.5.22/HEKCondensates24.5.22/truncatedmTq hubYFP 2bcmScar iono egta/Cells/Cells_analysis"
+
+# Get a list of all subfolders in the main directory
+subfolders <- list.dirs(main_dir, full.names = TRUE, recursive = FALSE)
+
+# Function to process CSV files within a given folder
+process_files <- function(folder_path) {
+  # Extract the folder name
+  folder_name <- basename(folder_path)
+  
+  # Extract the first three characters from the folder name
+  prefix <- substr(folder_name, 1, 3)
+  
+  # Construct file names dynamically using the prefix
+  glun2bcell_area_file <- file.path(folder_path, paste0(prefix, "GluN2BCellArea_results.csv"))
+  camkiicell_area_file <- file.path(folder_path, paste0(prefix, "CaMKIICellArea_results.csv"))
+ glun2b_puncta_file <- file.path(folder_path, paste0(prefix, "GluN2BPunctaArea_results.csv"))
+  camkii_puncta_file <- file.path(folder_path, paste0(prefix, "CaMKIIPunctaArea_results.csv"))
+  
+  # Check if files exist before reading
+  if (file.exists(glun2bcell_area_file) & file.exists(camkiicell_area_file) & file.exists(glun2b_puncta_file) & file.exists(camkii_puncta_file) & file.exists(hubcell_area_file) & file.exists(hub_puncta_file)) {
+    # Read CSV files
+    glun2bcell_area <- read_csv(glun2bcell_area_file)
+    camkiicell_area <- read_csv(camkiicell_area_file)
+    glun2b_puncta <- read_csv(glun2b_puncta_file)
+    camkii_puncta <- read_csv(camkii_puncta_file)
+    
+    # Extract specific columns
+    glun2b_cell_area <- glun2bcell_area[[3]]
+    camkii_cell_area <- camkiicell_area[[3]]
+    glun2b_puncta_int <- glun2b_puncta[[3]]
+    camkii_puncta_int <- camkii_puncta[[3]]
+    
+    # Calculate ratios
+    GluN2B_ratio <- data.frame(glun2b_puncta_intensity = glun2b_puncta_int / glun2b_cell_area)
+    camkii_ratio <- data.frame(CaMKII_puncta_intensity = camkii_puncta_int / camkii_cell_area)
+    
+    # Combine ratios into a single data frame
+    puncta_ratios <- cbind(GluN2B_ratio, camkii_ratio)
+    
+    # Convert to long format for plotting
+    puncta_ratios_long <- puncta_ratios %>%
+      mutate(Index = row_number()) %>%
+      pivot_longer(cols = -Index, names_to = "Variable", values_to = "Value")
+    
+    # Create the plot
+    plot <- ggplot(puncta_ratios_long, aes(x = Index, y = Value, color = Variable)) +
+      geom_line() +
+      labs(title = "Puncta Ratios", x = "Data Point Index", y = "Ratio") +
+      theme_minimal()
+    
+    # Print the plot to the console (optional)
+    print(plot)
+    
+    # Define the output file path with the prefix in the filename
+    output_file_path <- file.path(folder_path, paste0(prefix, "puncta_ratios.csv"))
+    
+    # Save the puncta_ratios data frame as a CSV file
+    write_csv(puncta_ratios, output_file_path)
+    
+    cat("Processed folder:", folder_path, "\n")
+  } else {
+    cat("Some files are missing in folder:", folder_path, "\n")
+  }
+}
+
+# Apply the function to all subfolders
+lapply(subfolders, process_files)
