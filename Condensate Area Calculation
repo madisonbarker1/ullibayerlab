@@ -1,0 +1,47 @@
+#Rstudio code for calculating condensate area per channel
+getwd()
+
+# Set the working directory to the desired path
+setwd("#set directory")
+
+getwd()
+
+library(readr)
+cell_area <- read_csv("05_GluN2BCellArea_results.csv")
+glun2b_puncta <- read_csv("05_GluN2BPunctaArea_results.csv")
+CaMKII_puncta <- read_csv("05_CaMKIIPunctaArea_results.csv")
+
+library(dplyr)
+total_cell_area <- cell_area[1,1]
+rm(total_cell_area)
+total_cell_area <- cell_area[,2]
+glun2b_puncta_area <- glun2b_puncta[,2]
+camkii_puncta_area <- CaMKII_puncta[,2]
+
+camkii_puncta_area[camkii_puncta_area == 1] <- 0
+
+GluN2B_ratio <- glun2b_puncta_area / total_cell_area
+camkii_ratio <- camkii_puncta_area / total_cell_area
+colnames(camkii_ratio) <- c("CaMKII_puncta_area")
+colnames(GluN2B_ratio) <- c("glun2b_puncta_area")
+
+
+library(tidyr)
+library(ggplot2)
+puncta_ratios <- cbind(GluN2B_ratio, camkii_ratio)
+
+puncta_ratios_long <- puncta_ratios %>%
+  mutate(Index = row_number()) %>%
+  pivot_longer(cols = -Index, names_to = "Variable", values_to = "Value")
+
+# Create the plot
+ggplot(puncta_ratios_long, aes(x = Index, y = Value, color = Variable)) +
+  geom_line() +
+  labs(title = "Puncta Ratios", x = "Data Point Index", y = "Ratio") +
+  theme_minimal()
+
+# Define the output file path
+ output_file_path <- "puncta_ratios.csv"
+
+# Save the puncta_ratios data frame as a CSV file
+ write_csv(puncta_ratios, output_file_path)
