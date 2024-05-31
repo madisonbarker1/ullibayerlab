@@ -94,7 +94,7 @@ for (i = 1; i <= 12; i++) {
 
     selectImage(imageName);
     getStatistics(area, mean, min, max, stdDev, histogram);
-    thresholdValue = mean + (2.75 * stdDev);
+    thresholdValue = mean + (3.0 * stdDev);
     setThreshold(thresholdValue, max);
     run("Convert to Mask");
 
@@ -204,7 +204,7 @@ for (i = 1; i <= 12; i++) {
 
     selectImage(imageName);
     getStatistics(area, mean, min, max, stdDev, histogram);
-    thresholdValue = mean + (2.75 * stdDev);
+    thresholdValue = mean + (3.0 * stdDev);
     setThreshold(thresholdValue, max);
     run("Convert to Mask");
 
