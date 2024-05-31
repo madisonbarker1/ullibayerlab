@@ -4,7 +4,7 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 
-main_dir <- "C:/Users/Chase/OneDrive/Documents/Bayer Lab Raw Data/HEK_CONDENSATES/GFP/HEK Condensates 24.5.22/HEKCondensates24.5.22/truncatedmTq hubYFP 2bcmScar iono egta/Cells/Cells_analysis"
+main_dir <- "#set main directory"
 
 # Get a list of all subfolders in the main directory
 subfolders <- list.dirs(main_dir, full.names = TRUE, recursive = FALSE)
