@@ -199,10 +199,10 @@ run("Stack to Images");
 for (i = 1; i <= 12; i++) {
     // Format the image names based on the index
     if (i < 10) {
-        imageName = "t0" + i + "_z1_c1";
+        imageName = "t0" + i + "_z1_c2";
         newName = "Area2-000" + i;
     } else {
-        imageName = "t" + i + "_z1_c1";
+        imageName = "t" + i + "_z1_c2";
         newName = "Area2-00" + i;
     }
 
@@ -278,10 +278,10 @@ run("Stack to Images");
 for (i = 1; i <= 12; i++) {
     // Format the image names based on the index
     if (i < 10) {
-        imageName = "t0" + i + "_z1_c1";
+        imageName = "t0" + i + "_z1_c2";
         newName = "Puncta2-000" + i;
     } else {
-        imageName = "t" + i + "_z1_c1";
+        imageName = "t" + i + "_z1_c2";
         newName = "Puncta2-00" + i;
     }
 
