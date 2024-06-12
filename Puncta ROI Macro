@@ -400,17 +400,18 @@ for (i = 1; i <= 12; i++) {
     setThreshold(thresholdValue, max);
     run("Convert to Mask");
 
-    run("Create Selection");
+    // Ensure the image is converted to a mask before creating selection
     if (selectionType() >= 0) {
+        run("Create Selection");
         roiManager("Add");
-        roiManager("Select", roiManager("count")-1); // Selects the last added ROI
-        roiManager("Rename", "HCellArea" + i); // Normal ROI
+        roiManager("Select", roiManager("count") - 1); // Selects the last added ROI
+        roiManager("Rename", "CCellArea" + i); // Normal ROI
     } else {
         print("No valid selection for " + imageName + ", adding dummy ROI.");
         makeRectangle(0, 0, 1, 1); // Create a tiny ROI at the corner of the image
         roiManager("Add");
-        roiManager("Select", roiManager("count")-1); // Selects the last added ROI
-        roiManager("Rename", "DummyHCellArea" + i); // Naming the dummy ROI distinctly
+        roiManager("Select", roiManager("count") - 1); // Selects the last added ROI
+        roiManager("Rename", "DummyCCellArea" + i); // Naming the dummy ROI distinctly
     }
 }
 
