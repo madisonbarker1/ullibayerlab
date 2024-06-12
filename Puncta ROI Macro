@@ -22,11 +22,11 @@ open();
 rename("Image");
 run("Split Channels");
 
-selectImage("C1-Image");
+selectImage("C3-Image");
 run("Duplicate...", "title=[Measure] duplicate");
-selectImage("C1-Image");
+selectImage("C3-Image");
 run("Duplicate...", "title=[Puncta] duplicate");
-selectImage("C1-Image");
+selectImage("C3-Image");
 run("Duplicate...", "title=[Area] duplicate");
 selectImage("Area");
 run("Stack to Images");
@@ -35,10 +35,10 @@ run("Stack to Images");
 for (i = 1; i <= 12; i++) {
     // Format the image names based on the index
     if (i < 10) {
-        imageName = "t0" + i + "_z1_c1";
+        imageName = "t0" + i + "_z1_c3";
         newName = "Area-000" + i;
     } else {
-        imageName = "t" + i + "_z1_c1";
+        imageName = "t" + i + "_z1_c3";
         newName = "Area-00" + i;
     }
 
@@ -114,10 +114,10 @@ run("Stack to Images");
 for (i = 1; i <= 12; i++) {
     // Format the image names based on the index
     if (i < 10) {
-        imageName = "t0" + i + "_z1_c1";
+        imageName = "t0" + i + "_z1_c3";
         newName = "Puncta-000" + i;
     } else {
-        imageName = "t" + i + "_z1_c1";
+        imageName = "t" + i + "_z1_c3";
         newName = "Puncta-00" + i;
     }
 
@@ -186,11 +186,11 @@ selectWindow("Results"); run("Close");
 roiManager("Reset");
 
 //====================================Get GluN2B Channel=====================================================================================
-selectImage("C2-Image");
+selectImage("C1-Image");
 run("Duplicate...", "title=[Measure2] duplicate");
-selectImage("C2-Image");
+selectImage("C1-Image");
 run("Duplicate...", "title=[Puncta2] duplicate");
-selectImage("C2-Image");
+selectImage("C1-Image");
 run("Duplicate...", "title=[Area2] duplicate");
 selectImage("Area2");
 run("Stack to Images");
@@ -199,10 +199,10 @@ run("Stack to Images");
 for (i = 1; i <= 12; i++) {
     // Format the image names based on the index
     if (i < 10) {
-        imageName = "t0" + i + "_z1_c2";
+        imageName = "t0" + i + "_z1_c1";
         newName = "Area2-000" + i;
     } else {
-        imageName = "t" + i + "_z1_c2";
+        imageName = "t" + i + "_z1_c1";
         newName = "Area2-00" + i;
     }
 
@@ -278,10 +278,10 @@ run("Stack to Images");
 for (i = 1; i <= 12; i++) {
     // Format the image names based on the index
     if (i < 10) {
-        imageName = "t0" + i + "_z1_c2";
+        imageName = "t0" + i + "_z1_c1";
         newName = "Puncta2-000" + i;
     } else {
-        imageName = "t" + i + "_z1_c2";
+        imageName = "t" + i + "_z1_c1";
         newName = "Puncta2-00" + i;
     }
 
@@ -344,8 +344,174 @@ if (roiManager("count") > 0) {
         run("Measure");
     }
 }
-
 saveAs("Results", filedir + fileNum + "GluN2BPunctaArea_results.csv");
+selectWindow("Results"); run("Close");
+roiManager("Reset");
+
+//hub quantification or third channel
+selectImage("C2-Image");
+run("Duplicate...", "title=[Measure3] duplicate");
+selectImage("C2-Image");
+run("Duplicate...", "title=[Puncta3] duplicate");
+selectImage("C2-Image");
+run("Duplicate...", "title=[Area3] duplicate");
+selectImage("Area3");
+run("Stack to Images");
+
+//made metadata renaming a loop
+for (i = 1; i <= 12; i++) {
+    // Format the image names based on the index
+    if (i < 10) {
+        imageName = "t0" + i + "_z1_c2";
+        newName = "Area3-000" + i;
+    } else {
+        imageName = "t" + i + "_z1_c2";
+        newName = "Area3-00" + i;
+    }
+
+    // Check if the image exists and rename it
+    if (isOpen(imageName)) {
+        selectImage(imageName);
+        rename(newName);
+    } else {
+        // Check if the image is already named correctly
+        if (isOpen(newName)) {
+            // Image is already correctly named, skip renaming
+            continue;
+        } else {
+            // If neither condition is true, print a warning message
+            print("Warning: Image " + imageName + " or " + newName + " not found.");
+        }
+    }
+}
+
+// Loop through the images and create ROIs
+for (i = 1; i <= 12; i++) {
+    imageName = "Area3-";
+    if (i < 10) {
+        imageName += "000" + i;
+    } else {
+        imageName += "00" + i;
+    }
+
+    selectImage(imageName);
+    getStatistics(area, mean, min, max, stdDev, histogram);
+    thresholdValue = mean;
+    setThreshold(thresholdValue, max);
+    run("Convert to Mask");
+
+    run("Create Selection");
+    if (selectionType() >= 0) {
+        roiManager("Add");
+        roiManager("Select", roiManager("count")-1); // Selects the last added ROI
+        roiManager("Rename", "HCellArea" + i); // Normal ROI
+    } else {
+        print("No valid selection for " + imageName + ", adding dummy ROI.");
+        makeRectangle(0, 0, 1, 1); // Create a tiny ROI at the corner of the image
+        roiManager("Add");
+        roiManager("Select", roiManager("count")-1); // Selects the last added ROI
+        roiManager("Rename", "DummyHCellArea" + i); // Naming the dummy ROI distinctly
+    }
+}
+
+// Save ROIs
+roiManager("Deselect");
+roiManager("Save", filedir + fileNum + "HubCellArea_ROIset.zip");
+selectImage("Measure");
+run("Set Measurements...", "area mean redirect=None decimal=2");
+
+// Measure ROIs
+if (roiManager("count") > 0) {
+    for (i = 0; i < roiManager("count"); i++) {
+        roiManager("select", i);
+        setSlice(i + 1);
+        run("Measure");
+    }
+}
+
+saveAs("Results", filedir + fileNum + "HubCellArea_results.csv");
+selectWindow("Results"); run("Close");
+roiManager("Reset");
+
+//==============================GluN2B Puncta Area===========================================================================================
+selectImage("Puncta3");
+run("Stack to Images");
+
+//fix the metadata naming issue
+for (i = 1; i <= 12; i++) {
+    // Format the image names based on the index
+    if (i < 10) {
+        imageName = "t0" + i + "_z1_c2";
+        newName = "Puncta3-000" + i;
+    } else {
+        imageName = "t" + i + "_z1_c2";
+        newName = "Puncta3-00" + i;
+    }
+
+    // Check if the image exists and rename it
+    if (isOpen(imageName)) {
+        selectImage(imageName);
+        rename(newName);
+    } else {
+        // Check if the image is already named correctly
+        if (isOpen(newName)) {
+            // Image is already correctly named, skip renaming
+            continue;
+        } else {
+            // If neither condition is true, print a warning message
+            print("Warning: Image " + imageName + " or " + newName + " not found.");
+        }
+    }
+}
+
+// Loop through the images and create ROIs
+for (i = 1; i <= 12; i++) {
+    imageName = "Puncta3-";
+    if (i < 10) {
+        imageName += "000" + i;
+    } else {
+        imageName += "00" + i;
+    }
+
+    selectImage(imageName);
+    getStatistics(area, mean, min, max, stdDev, histogram);
+    thresholdValue = mean + (3.0 * stdDev);
+    
+    // Apply threshold
+    setThreshold(thresholdValue, max);
+    run("Convert to Mask");
+
+    // Check if the image has been thresholded properly
+    if (selectionType() >= 0) {
+        run("Create Selection");
+        roiManager("Add");
+        roiManager("Select", roiManager("count")-1); // Selects the last added ROI
+        roiManager("Rename", "HPunctaArea" + i); // Normal ROI
+    } else {
+        print("No valid selection for " + imageName + ", adding dummy ROI.");
+        makeRectangle(0, 0, 1, 1); // Create a tiny ROI at the corner of the image
+        roiManager("Add");
+        roiManager("Select", roiManager("count")-1); // Selects the last added ROI
+        roiManager("Rename", "DummyHPunctaArea" + i); // Naming the dummy ROI distinctly
+    }
+}
+
+// Save ROIs
+roiManager("Deselect");
+roiManager("Save", filedir + fileNum + "HubPunctaArea_ROIset.zip");
+selectImage("Measure2");
+run("Set Measurements...", "area mean redirect=None decimal=2");
+
+// Measure ROIs
+if (roiManager("count") > 0) {
+    for (i = 0; i < roiManager("count"); i++) {
+        roiManager("select", i);
+        setSlice(i + 1);
+        run("Measure");
+    }
+}
+
+saveAs("Results", filedir + fileNum + "HubPunctaArea_results.csv");
 selectWindow("Results"); run("Close");
 roiManager("Reset");
 
