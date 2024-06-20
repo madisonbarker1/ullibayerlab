@@ -1,89 +1,69 @@
-#R Code for Condensate File Manipulation
+#R Code for Condensate File Manipulation including an output file for Prism -- this is the 3 channel code
 library(readr)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(openxlsx)
 
-main_dir <- "C:/Users/Chase/OneDrive/Documents/Bayer Lab Raw Data/HEK_CONDENSATES/GFP/WTGFPCaMKII_WTmScarlet2bc/230524/Cells/Cells_analysis"
+main_dir <- "C:/Users/Chase/OneDrive/Documents/Bayer Lab Raw Data/HEK_CONDENSATES/GFP/mTq-WTtruncmonCaMKII monohub-YFP mScar-WT2bc 2 iono egta/Cells/Cells_analysis"
 
 # Get a list of all subfolders in the main directory
 subfolders <- list.dirs(main_dir, full.names = TRUE, recursive = FALSE)
 
-# Function to process CSV files within a given folder
+# Create a new workbook
+workbook <- createWorkbook()
+
 process_files <- function(folder_path) {
-  # Extract the folder name
   folder_name <- basename(folder_path)
-  
-  # Extract the first three characters from the folder name
   prefix <- substr(folder_name, 1, 3)
   
-  # Construct file names dynamically using the prefix
-  glun2bcell_area_file <- file.path(folder_path, paste0(prefix, "GluN2BCellArea_results.csv"))
-  camkiicell_area_file <- file.path(folder_path, paste0(prefix, "CaMKIICellArea_results.csv"))
- glun2b_puncta_file <- file.path(folder_path, paste0(prefix, "GluN2BPunctaArea_results.csv"))
-  camkii_puncta_file <- file.path(folder_path, paste0(prefix, "CaMKIIPunctaArea_results.csv"))
+  # Define the paths to the different data files
+  glun2bcell_area_file = file.path(folder_path, paste0(prefix, "GluN2BCellArea_results.csv"))
+  camkiicell_area_file = file.path(folder_path, paste0(prefix, "CaMKIICellArea_results.csv"))
+  hubcell_area_file = file.path(folder_path, paste0(prefix, "HubCellArea_results.csv"))
+  glun2b_puncta_file = file.path(folder_path, paste0(prefix, "GluN2BPunctaArea_results.csv"))
+  camkii_puncta_file = file.path(folder_path, paste0(prefix, "CaMKIIPunctaArea_results.csv"))
+  hub_puncta_file = file.path(folder_path, paste0(prefix, "HubPunctaArea_results.csv"))
   
-  # Check if files exist before reading
-  if (file.exists(glun2bcell_area_file) & file.exists(camkiicell_area_file) & file.exists(glun2b_puncta_file) & file.exists(camkii_puncta_file)) {
-    # Read CSV files
-    glun2bcell_area <- read_csv(glun2bcell_area_file)
-    camkiicell_area <- read_csv(camkiicell_area_file)
+  # Load and check all files
+  if (file.exists(glun2bcell_area_file) && file.exists(camkiicell_area_file) && file.exists(hubcell_area_file) &&
+      file.exists(glun2b_puncta_file) && file.exists(camkii_puncta_file) && file.exists(hub_puncta_file)) {
+    
+    glun2b_cell_area <- read_csv(glun2bcell_area_file)
+    camkii_cell_area <- read_csv(camkiicell_area_file)
+    hub_cell_area <- read_csv(hubcell_area_file)
     glun2b_puncta <- read_csv(glun2b_puncta_file)
     camkii_puncta <- read_csv(camkii_puncta_file)
-    
-    # Extract specific columns
-    glun2b_cell_area <- glun2bcell_area[[4]]
-    camkii_cell_area <- camkiicell_area[[4]]
-    glun2b_puncta_int <- glun2b_puncta[[4]]
-    camkii_puncta_int <- camkii_puncta[[4]]
+    hub_puncta <- read_csv(hub_puncta_file)
     
     # Calculate ratios
-    GluN2B_ratio <- data.frame(glun2b_puncta_intensity = glun2b_puncta_int / glun2b_cell_area)
-    camkii_ratio <- data.frame(CaMKII_puncta_intensity = camkii_puncta_int / camkii_cell_area)
+    ratios <- data.frame(Index = 1:nrow(glun2b_cell_area),
+                         glun2b_puncta_intensity = glun2b_puncta$RawIntDen / glun2b_cell_area$RawIntDen,
+                         CaMKII_puncta_intensity = camkii_puncta$RawIntDen / camkii_cell_area$RawIntDen,
+                         hub_puncta_intensity = hub_puncta$RawIntDen / hub_cell_area$RawIntDen)
     
-    # Combine ratios into a single data frame
-    puncta_ratios <- cbind(GluN2B_ratio, camkii_ratio)
-    
-    # Convert to long format for plotting
-    puncta_ratios_long <- puncta_ratios %>%
-      mutate(Index = row_number()) %>%
-      pivot_longer(cols = -Index, names_to = "Variable", values_to = "Value")
-    
-    # Create the plot
-    plot <- ggplot(puncta_ratios_long, aes(x = Index, y = Value, color = Variable)) +
+    # Convert from long to wide format for plotting and Excel
+    ratios_long <- pivot_longer(ratios, cols = -Index, names_to = "Variable", values_to = "Value")
+    plot <- ggplot(ratios_long, aes(x = Index, y = Value, color = Variable)) +
       geom_line() +
       labs(title = "Puncta Ratios", x = "Data Point Index", y = "Ratio") +
       theme_minimal()
-    
-    # Print the plot to the console (optional)
     print(plot)
     
-    # Define the output file path with the prefix in the filename
-    output_file_path <- file.path(folder_path, paste0(prefix, "puncta_ratios.csv"))
+    # Add worksheet and write data
+    sheet_name <- paste(folder_name, "puncta_ratios", sep = "_")
+    addWorksheet(workbook, sheet_name)
+    writeData(workbook, sheet_name, ratios)
     
-    # Save the puncta_ratios data frame as a CSV file
-    write_csv(puncta_ratios, output_file_path)
     cat("Processed folder:", folder_path, "\n")
-    
-    # Return the processed data with folder name
-    return(puncta_ratios)
   } else {
     cat("Some files are missing in folder:", folder_path, "\n")
-    return(NULL)
   }
 }
 
-# Apply the function to all subfolders and collect results
-all_puncta_ratios <- lapply(subfolders, process_files)
+# Apply the function to all subfolders
+lapply(subfolders, process_files)
 
-# Combine all results into one data frame
-all_puncta_ratios_combined <- bind_rows(all_puncta_ratios)
-
-# Define the output Excel file path
-output_excel_file <- file.path(main_dir, "combined_rawintdenpuncta_ratios.xlsx")
-
-# Write combined data to an Excel file
-write.xlsx(all_puncta_ratios_combined, output_excel_file, rowNames = FALSE)
-
-cat("All data has been combined and saved to", output_excel_file, "\n")
+# Save the workbook
+saveWorkbook(workbook, file.path(main_dir, "Results_Workbook.xlsx"), overwrite = TRUE)
+cat("All data has been saved to Excel workbook.\n")
